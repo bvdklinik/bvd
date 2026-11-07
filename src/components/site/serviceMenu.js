@@ -14,6 +14,13 @@ export const getServiceMenu = (lang) => {
     items: g.slugs
       .map((slug) => services.find((s) => s.slug === slug))
       .filter(Boolean)
-      .map((s) => ({ title: s.title, href: `/services/${s.slug}` })),
+      .map((s) => ({
+        slug: s.slug,
+        title: s.title,
+        tagline: s.tagline,
+        img: s.img,
+        alt: s.alt,
+        href: `/services/${s.slug}`,
+      })),
   }));
 };
