@@ -1,0 +1,68 @@
+{
+  "name": "BookingRequest",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the person asking for an appointment"
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "description": "E-mail address the appointment is confirmed to"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Phone number, if one was given"
+    },
+    "preferred_date": {
+      "type": "string",
+      "description": "The date the visitor asked for, as they typed it"
+    },
+    "preferred_time": {
+      "type": "string",
+      "description": "The time the visitor asked for, as they typed it"
+    },
+    "treatment": {
+      "type": "string",
+      "description": "Treatment the visitor is interested in; empty if unsure"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Optional notes from the visitor"
+    },
+    "consent": {
+      "type": "boolean",
+      "description": "Visitor agreed to their details being processed"
+    }
+  },
+  "required": [
+    "name",
+    "email"
+  ],
+  "rls": {
+    "create": {},
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

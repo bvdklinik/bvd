@@ -1,0 +1,70 @@
+{
+  "name": "ContactEnquiry",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Full name of the person enquiring"
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "description": "E-mail address to reply to"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Phone number, if one was given"
+    },
+    "subject": {
+      "type": "string",
+      "enum": [
+        "General enquiry",
+        "Appointment & consultation",
+        "Dental implants",
+        "Orthodontics & clear aligners",
+        "Aesthetic dentistry & smile design",
+        "Something else"
+      ],
+      "description": "Reason for the enquiry"
+    },
+    "message": {
+      "type": "string",
+      "description": "The message itself"
+    },
+    "consent": {
+      "type": "boolean",
+      "description": "Visitor agreed to their details being processed"
+    }
+  },
+  "required": [
+    "name",
+    "email",
+    "subject",
+    "message"
+  ],
+  "rls": {
+    "create": {},
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
