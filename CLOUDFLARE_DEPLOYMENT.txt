@@ -1,0 +1,29 @@
+BVD CLINIC - GITHUB + CLOUDFLARE PAGES
+
+This project is prepared for Cloudflare Pages.
+
+CLOUDFLARE PAGES BUILD SETTINGS
+- Framework preset: Vite
+- Production branch: main
+- Build command: npm run build
+- Build output directory: dist
+- Root directory: / (repository root)
+
+REQUIRED ENVIRONMENT VARIABLES
+Add these in Cloudflare Pages > Settings > Environment variables, for both Production and Preview if needed:
+- VITE_BASE44_APP_ID
+- VITE_BASE44_FUNCTIONS_VERSION
+- VITE_BASE44_APP_BASE_URL
+
+Use the exact values from the existing Base44 app settings. Do not invent or expose these values in a public repository.
+
+IMPORTANT
+- Keep the Base44 app active. The current website still uses Base44 for backend functionality and remote media.
+- Images and other photography are referenced from Base44-hosted URLs in src/components/site/media.js and src/components/site/clinicPhotos.js. They are not bundled locally in this source archive.
+- Contact/booking/authentication functionality may depend on the Base44 app and its environment variables.
+- Before changing or cancelling Base44, migrate the media and backend and test the site.
+- The production domain bvdklinik.com is already configured in index.html for the canonical URL, Open Graph URL, and schema.org Dentist URL. Cloudflare Pages > Custom domains: add bvdklinik.com. Add www.bvdklinik.com separately only if you want the www hostname to work too, then configure the preferred-host redirect/DNS as appropriate.
+- The public/_redirects file enables SPA route fallback on Cloudflare Pages.
+
+GITHUB
+Upload the CONTENTS of this folder to the root of a new GitHub repository. Do not upload node_modules or any .env files.
