@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Check } from "lucide-react";
+import { Check, Phone } from "lucide-react";
 import Reveal from "@/components/site/Reveal";
 import SectionLabel from "@/components/site/SectionLabel";
 import { clinicPhone, clinicPhoneHref } from "@/components/site/clinicInfo";
 import { useI18n } from "@/lib/i18n";
-import { buildWhatsAppMessage, openWhatsApp } from "@/lib/whatsapp";
+import { sendFormEmail } from "@/lib/sendFormEmail";
 import ContactFormFields, { SUBJECTS } from "./ContactFormFields";
 
 /* The stored subject stays in English; only the label the visitor reads changes. */
@@ -58,28 +58,31 @@ export default function ContactForm() {
     if (errors[name]) setErrors((current) => ({ ...current, [name]: undefined }));
   };
 
-  // Delivered over WhatsApp: opens a pre-filled message to the clinic's number.
-  // Runs synchronously so the browser does not block the new tab.
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const nextErrors = validate(form, t);
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length) return;
 
-    const subject = SUBJECTS.find((s) => s.value === form.subject);
-    openWhatsApp(
-      buildWhatsAppMessage([
-        `*${t("whatsapp.contactTitle")}*`,
-        "",
-        [t("form.fullName"), form.name],
-        [t("form.email"), form.email],
-        [t("form.phone"), form.phone],
-        [t("form.subject"), subject ? t(subject.labelKey) : form.subject],
-        "",
-        form.message.trim(),
-      ])
-    );
-    setStatus("sent");
+    setStatus("sending");
+    try {
+      // E-mailed straight to the clinic's inbox (see src/lib/sendFormEmail.js).
+      const subject = SUBJECTS.find((s) => s.value === form.subject);
+      await sendFormEmail({
+        subject: `Web sitesi mesajı — ${form.name.trim()}`,
+        replyTo: form.email.trim(),
+        fields: {
+          [t("form.fullName")]: form.name,
+          [t("form.email")]: form.email,
+          [t("form.phone")]: form.phone,
+          [t("form.subject")]: subject ? t(subject.labelKey) : form.subject,
+          [t("form.message")]: form.message,
+        },
+      });
+      setStatus("sent");
+    } catch {
+      setStatus("error");
+    }
   };
 
   const reset = () => {
@@ -107,7 +110,8 @@ export default function ContactForm() {
               <div className="flex max-w-[42rem] items-start gap-4">
                 <Check className="mt-1 h-6 w-6 shrink-0 text-[#37465c]" />
                 <div className="text-[#313131]">
-                  {t("whatsapp.sent")} {t("contact.sentUrgent")}{" "}
+                  {t("contact.sent")} <span className="font-medium">{form.email}</span>.{" "}
+                  {t("contact.sentUrgent")}{" "}
                   <a href={clinicPhoneHref} className="font-medium">
                     {clinicPhone}
                   </a>
@@ -122,13 +126,30 @@ export default function ContactForm() {
                 </div>
               </div>
             ) : (
-              <ContactFormFields
-                form={form}
-                errors={errors}
-                sending={false}
-                onChange={handleChange}
-                onSubmit={handleSubmit}
-              />
+              <>
+                {status === "error" && (
+                  <div
+                    role="alert"
+                    className="mb-6 flex max-w-[42rem] items-start gap-4 rounded-lg bg-white/70 p-5"
+                  >
+                    <Phone className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
+                    <div className="text-[#313131]">
+                      {t("contact.error")}{" "}
+                      <a href={clinicPhoneHref} className="font-medium">
+                        {clinicPhone}
+                      </a>
+                      .
+                    </div>
+                  </div>
+                )}
+                <ContactFormFields
+                  form={form}
+                  errors={errors}
+                  sending={status === "sending"}
+                  onChange={handleChange}
+                  onSubmit={handleSubmit}
+                />
+              </>
             )}
           </Reveal>
         </div>
