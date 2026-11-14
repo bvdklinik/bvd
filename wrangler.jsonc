@@ -1,0 +1,14 @@
+// Cloudflare Workers static-assets config, used when Cloudflare builds this repo
+// from Git (build: `npm run build`, deploy: `npx wrangler deploy`).
+// `name` must match the Worker name in the Cloudflare dashboard.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "bvd",
+  "compatibility_date": "2025-09-01",
+  "assets": {
+    "directory": "./dist",
+    // Unknown paths fall back to index.html so the app's router (and its own
+    // 404 page) handles them, instead of Cloudflare's blank 404.
+    "not_found_handling": "single-page-application"
+  }
+}
