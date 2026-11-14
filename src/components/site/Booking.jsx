@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { CalendarCheck, Phone } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { CalendarCheck } from "lucide-react";
 import ArrowIcon from "./ArrowIcon";
 import GlassPanel from "./GlassPanel";
 import ParallaxMedia from "./ParallaxMedia";
@@ -10,21 +9,22 @@ import BookingExtras from "./BookingExtras";
 import { smileWide, doctorPortraits } from "./clinicPhotos";
 import { clinicEmail, clinicEmailHref, clinicPhone, clinicPhoneHref } from "./clinicInfo";
 import { useI18n } from "@/lib/i18n";
+import { buildWhatsAppMessage, openWhatsApp } from "@/lib/whatsapp";
 
 const COPY = {
   tr: {
     heading: "Online randevu alın",
-    intro: "Size uygun zamanı bize bildirin, randevunuzu e-posta ile onaylayalım.",
+    intro: "Size uygun zamanı bize bildirin, randevunuzu WhatsApp üzerinden onaylayalım.",
     smileAlt: "Sağlıklı ve kendinden emin bir gülüşün yakın çekimi",
     portraitAlt: "BVD Clinic'te bir diş hekiminin portresi",
-    nextStep: "Sırada ne var: ekibimiz talebinizi inceler ve bir iş günü içinde e-posta veya telefonla uygun saati teyit eder. Randevunuz bu onaydan sonra kesinleşir.",
+    nextStep: "Randevu Al'a bastığınızda WhatsApp, bilgilerinizle hazırlanmış bir mesajla açılır; talebinizi iletmek için WhatsApp'ta gönder'e basın. Ekibimiz bir iş günü içinde uygun saati teyit eder. Randevunuz bu onaydan sonra kesinleşir.",
   },
   en: {
     heading: "Book online",
-    intro: "Tell us when it suits you and we will confirm your appointment by e-mail.",
+    intro: "Tell us when it suits you and we will confirm your appointment on WhatsApp.",
     smileAlt: "Close-up of a healthy, confident smile",
     portraitAlt: "Portrait of a dentist at BVD Clinic",
-    nextStep: "What happens next: our team reviews your request and confirms a time by e-mail or phone within one working day. Your appointment is final once confirmed.",
+    nextStep: "When you press Book Appointment, WhatsApp opens with a message containing your details; press send in WhatsApp to deliver it. Our team confirms a time within one working day. Your appointment is final once confirmed.",
   },
 };
 
@@ -47,32 +47,25 @@ export default function Booking() {
     setForm({ ...form, [name]: type === "checkbox" ? checked : value });
   };
 
-  const handleSubmit = async (event) => {
+  // Delivered over WhatsApp: opens a pre-filled message to the clinic's number.
+  // Runs synchronously so the browser does not block the new tab.
+  const handleSubmit = (event) => {
     event.preventDefault();
-    if (status === "sending") return;
-    setStatus("sending");
-
-    const request = {
-      name: form.name.trim(),
-      email: form.email.trim(),
-      phone: form.phone.trim(),
-      preferred_date: form.date.trim(),
-      preferred_time: form.time.trim(),
-      treatment: form.treatment,
-      notes: form.notes.trim(),
-      consent: form.consent,
-    };
-
-    try {
-      await base44.entities.BookingRequest.create(request);
-      // Saved either way — this send is the clinic's copy of the request.
-      await base44.functions
-        .invoke("sendEnquiryNotification", { source: "booking", ...request })
-        .catch(() => {});
-      setStatus("sent");
-    } catch {
-      setStatus("error");
-    }
+    openWhatsApp(
+      buildWhatsAppMessage([
+        `*${t("whatsapp.bookingTitle")}*`,
+        "",
+        [t("form.fullName"), form.name],
+        [t("form.email"), form.email],
+        [t("form.phone"), form.phone],
+        [t("form.date"), form.date],
+        [t("form.time"), form.time],
+        [t("whatsapp.treatment"), form.treatment || t("whatsapp.unsure")],
+        "",
+        form.notes.trim(),
+      ])
+    );
+    setStatus("sent");
   };
 
   return (
@@ -137,25 +130,10 @@ export default function Booking() {
               {status === "sent" ? (
                 <div className="flex items-start gap-4 rounded-lg bg-[#f1efea] p-6">
                   <CalendarCheck className="mt-0.5 h-6 w-6 shrink-0 text-[#37465c]" />
-                  <div className="text-[#313131]">{t("booking.sent")}</div>
+                  <div className="text-[#313131]">{t("whatsapp.sent")}</div>
                 </div>
               ) : (
                 <>
-                  {status === "error" && (
-                    <div
-                      role="alert"
-                      className="mb-6 flex items-start gap-4 rounded-lg bg-[#f1efea] p-5"
-                    >
-                      <Phone className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
-                      <div className="text-[#313131]">
-                        {t("booking.error")}{" "}
-                        <a href={clinicPhoneHref} className="font-medium">
-                          {clinicPhone}
-                        </a>
-                        .
-                      </div>
-                    </div>
-                  )}
                   <form className="grid w-full gap-4 md:grid-cols-2" onSubmit={handleSubmit}>
                   {fields.map((field) => (
                     <div
@@ -186,10 +164,9 @@ export default function Booking() {
                   <div className="md:col-span-2">
                     <button
                       type="submit"
-                      disabled={status === "sending"}
                       className="group/cta inline-flex items-center justify-center gap-2 rounded-full bg-[#37465c] px-7 py-3 text-[0.8rem] font-medium uppercase tracking-[0.05em] text-[#f9f9f9] transition-colors duration-500 hover:bg-[#2c3a4e] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#37465c] focus-visible:ring-offset-2 disabled:cursor-default disabled:opacity-60"
                     >
-                      {status === "sending" ? t("form.bookingSending") : t("form.book")}
+                      {t("form.book")}
                       <ArrowIcon className="h-4 w-4 transition-transform duration-500 ease-out group-hover/cta:translate-x-1 group-hover/cta:-translate-y-1" />
                     </button>
                     <p className="mt-3 text-[0.8rem] text-[#616161]">{copy.nextStep}</p>

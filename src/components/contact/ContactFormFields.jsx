@@ -9,7 +9,7 @@ import ConsentCheckbox from "@/components/site/ConsentCheckbox";
  * English wording the clinic's records already use — and `labelKey` is what the
  * visitor reads, so switching language never changes the saved value.
  */
-const SUBJECTS = [
+export const SUBJECTS = [
   { value: "General enquiry", labelKey: "subject.general" },
   { value: "Appointment & consultation", labelKey: "subject.appointment" },
   { value: "Dental implants", labelKey: "subject.implants" },

@@ -11,7 +11,8 @@ export const clinicPhone = "+90 501 606 01 23";
 export const clinicPhoneHref = "tel:+905016060123";
 export const clinicEmail = "info@bvdklinik.com";
 export const clinicEmailHref = "mailto:info@bvdklinik.com";
-export const clinicWhatsapp = "https://api.whatsapp.com/send?phone=905016060123";
+export const clinicWhatsappNumber = "905016060123";
+export const clinicWhatsapp = `https://api.whatsapp.com/send?phone=${clinicWhatsappNumber}`;
 
 /* — Where we are — */
 export const clinicAddressLines = [

@@ -92,6 +92,14 @@ export const ui = {
   },
 
   /* — Submission feedback — */
+  "whatsapp.sent": {
+    tr: "WhatsApp, bilgilerinizi içeren bir mesajla açıldı. Mesajın kliniğe ulaşması için WhatsApp'ta gönder'e basın.",
+    en: "WhatsApp has opened with a message containing your details. Press send in WhatsApp so it reaches the clinic.",
+  },
+  "whatsapp.contactTitle": { tr: "Web sitesinden yeni mesaj", en: "New message from the website" },
+  "whatsapp.bookingTitle": { tr: "Web sitesinden randevu talebi", en: "Appointment request from the website" },
+  "whatsapp.treatment": { tr: "Tedavi", en: "Treatment" },
+  "whatsapp.unsure": { tr: "Emin değilim / muayene", en: "Not sure / check-up" },
   "booking.sent": {
     tr: "Teşekkürler, talebiniz kliniğe ulaştı. Randevunuzu e-posta ile onaylayacağız.",
     en: "Thank you — your request is with the clinic. We will confirm your appointment by e-mail.",
